@@ -2,8 +2,6 @@ import numpy as np
 import math
 import cv2
 
-from src.data import read_grayscale_image
-
 
 def flatten_image(image):
     return np.array(image).flatten()
@@ -51,12 +49,6 @@ def LBP(image, radius: int, neighbors: int):
         values.append(row_values)
 
     return np.array(values)
-
-
-def transform_and_show(path, radius: int, neighbors: int):
-    image = read_grayscale_image(path, 128, 128)
-
-    cv2.imshow("Pred", image)
 
 
 def LBP1_1_8(image):
