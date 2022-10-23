@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from src.features import LBP
+from src.features import LBP, LBP_interpolation
 
 
 def read_grayscale_image(path: str, width: int, height: int):
@@ -15,6 +15,6 @@ def transform_and_show(path, radius: int, neighbors: int):
 
     cv2.imwrite("Pred.png", image)
 
-    transformed = np.array(LBP(image, radius, neighbors))
+    transformed = np.array(LBP_interpolation(image, radius, neighbors))
 
     cv2.imwrite("Po.png", transformed)

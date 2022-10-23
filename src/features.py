@@ -51,13 +51,108 @@ def LBP(image, radius: int, neighbors: int):
     return np.array(values)
 
 
-def LBP1_1_8(image):
-    # values = []
+def LBP_value_interpolation(image, center_value, coordinates):
+    lbp = 0
+    for i, point in enumerate(coordinates):
+        # First coordinate represents row (y axis) and second represents column (x axis)
+        
+        """x_s = []
+        y_s = []
+
+        if(point[0].is_integer()):
+            x_s.append(int(point[0]))
+        else:
+            x_s.append(math.ceil(point[0]))
+            x_s.append(math.floor(point[0]))
+
+        
+        if(point[1].is_integer()):
+            y_s.append(int(point[1]))
+        else:
+            y_s.append(math.ceil(point[1]))
+            y_s.append(math.floor(point[1]))
+
+        pixel_value = 0
+        c = 0
+        for x in x_s:
+            for y in y_s:
+                c += 1
+                pixel_value += image[x][y]
+        pixel_value /= c"""
+
+        pixle_value = 0
+        pixle_value += image[math.ceil(point[0])][math.ceil(point[1])]
+        pixle_value += image[math.ceil(point[0])][math.floor(point[1])]
+        pixle_value += image[math.floor(point[0])][math.ceil(point[1])]
+        pixle_value += image[math.floor(point[0])][math.floor(point[1])]
+        pixle_value /= 4
+
+        if(center_value <= pixle_value):
+            lbp += 2**i
+
+    return lbp
+
+
+def LBP_interpolation(image, radius: int, neighbors: int):
+    coordinates = get_coordinates(radius, neighbors, False)
+
+    values = []
     for row_i, row in enumerate(image):
         row_values = []
         for pixel_i, pixel in enumerate(row):
             # If pixel in question is on the edge set value to 0
-            if(row_i == 0 or pixel_i == 0):
+            if(row_i < radius or pixel_i < radius or row_i+radius >= 128 or pixel_i+radius >= 128):
                 row_values.append(0)
             else:
-                pass
+                neighbor_coordinates = [(row_i+y, pixel_i+x) for x, y in coordinates]
+                row_values.append(LBP_value_interpolation(image, pixel, neighbor_coordinates))
+
+        values.append(row_values)
+
+    return np.array(values)
+
+
+def LBP_histogram(image, radius: int, neighbors: int, columns: int, rows: int):
+    LBP_picture = LBP_interpolation(image, radius, neighbors)
+
+    height = len(image)
+    width = len(image[0])
+
+    grid_height = int(height/rows)
+    grid_width = int(width/columns)
+
+    final_hist = np.array([])
+
+    for column in range(columns):
+        for row in range(rows):
+            subarray = LBP_picture[row*grid_height:(row+1)*grid_height,
+                column*grid_width:(column+1)*grid_width]
+
+            hist = np.histogram(subarray, bins=range(257))
+
+            final_hist = np.concatenate((final_hist, hist[0]), axis=0)
+
+    return final_hist
+            
+
+
+lookup_table = [0,1,2,3,4,58,5,6,7,58,58,58,8,58,9,10,11,58,58,58,58,58,58,58,12,58,58,58,13,58,
+        14,15,16,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,17,58,58,58,58,58,58,58,18,
+        58,58,58,19,58,20,21,22,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,
+        58,58,58,58,58,58,58,58,58,58,58,58,23,58,58,58,58,58,58,58,58,58,58,58,58,58,
+        58,58,24,58,58,58,58,58,58,58,25,58,58,58,26,58,27,28,29,30,58,31,58,58,58,32,58,
+        58,58,58,58,58,58,33,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,34,58,58,58,58,
+        58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,58,
+        58,35,36,37,58,38,58,58,58,39,58,58,58,58,58,58,58,40,58,58,58,58,58,58,58,58,58,
+        58,58,58,58,58,58,41,42,43,58,44,58,58,58,45,58,58,58,58,58,58,58,46,47,48,58,49,
+        58,58,58,50,51,52,58,53,54,55,56,57]
+
+
+def LBP_uniform(image, radius:int, neighbors: int):
+    LBP_picture = LBP_interpolation(image, radius, neighbors)
+
+    for row_i, row in enumerate(LBP_picture):
+        for pixel_i, pixel in enumerate(row):
+            LBP_picture[row_i][pixel_i] = lookup_table[pixel]
+
+    return LBP_picture

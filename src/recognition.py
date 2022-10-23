@@ -40,3 +40,30 @@ def euclidian_distance_recognition_2(target_image_flattened, images_flattened,
                     closest_sample = sample_i
 
     return closest_persone, closest_sample
+
+
+def euclidian_distance_metric_recognition(images_flattened):
+    images_flattened = np.array(images_flattened)
+    images_flattened = images_flattened.reshape(-1,images_flattened.shape[-1])
+    return pairwise_distances(images_flattened, metric="euclidean")
+
+
+def euclidian_distance_metric_recognition_histogram(images_flattened):
+    return pairwise_distances(images_flattened, metric="euclidean")
+
+
+def TP_rate_from_distances(distance_mtx):
+    TP = 0
+    for i, row in enumerate(distance_mtx):
+        closest_distance = closest_distance = sys.float_info.max
+        closest_j = None
+        for j, distance in enumerate(row):
+            if(i != j and closest_distance>distance):
+                closest_j = j
+                closest_distance = distance
+        
+        if(int(i/10) == int(closest_j/10)):
+            TP += 1
+
+    return (TP/len(distance_mtx))
+
