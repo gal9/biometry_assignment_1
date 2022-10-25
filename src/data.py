@@ -10,8 +10,8 @@ def read_grayscale_image(path: str, width: int, height: int):
     return im_resized
 
 
-def transform_and_show(path, radius: int, neighbors: int):
-    image = read_grayscale_image(path, 128, 128)
+def transform_and_show(path, radius: int, neighbors: int, resolution: int):
+    image = read_grayscale_image(path, resolution, resolution)
 
     cv2.imwrite("Pred.png", image)
 
