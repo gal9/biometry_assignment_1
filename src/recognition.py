@@ -4,8 +4,7 @@ import numpy as np
 
 
 def euclidian_distance_recognition(target_image_flattened, images_flattened,
-                                   target_persone_i: int,
-                                   target_sample_i: int):
+                                   target_persone_i: int, target_sample_i: int, metric: str):
     closest_sample = None
     closest_persone = None
     closest_distance = sys.float_info.max
@@ -14,7 +13,7 @@ def euclidian_distance_recognition(target_image_flattened, images_flattened,
         for sample_i, sample in enumerate(samples):
             if(persone_i != target_persone_i or sample_i != target_sample_i):
                 distance = pairwise_distances([sample-target_image_flattened],
-                                              metric="euclidean")
+                                              metric)
                 if(distance < closest_distance):
                     closest_distance = distance
                     closest_persone = persone_i
@@ -42,10 +41,10 @@ def euclidian_distance_recognition_2(target_image_flattened, images_flattened,
     return closest_persone, closest_sample
 
 
-def euclidian_distance_metric_recognition(images_flattened):
+def euclidian_distance_metric_recognition(images_flattened, metric: str):
     images_flattened = np.array(images_flattened)
     images_flattened = images_flattened.reshape(-1,images_flattened.shape[-1])
-    return pairwise_distances(images_flattened, metric="euclidean")
+    return pairwise_distances(images_flattened, metric=metric)
 
 
 def euclidian_distance_metric_recognition_histogram(images_flattened):
